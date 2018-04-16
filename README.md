@@ -30,3 +30,13 @@ minibatch = next(test_set)
 pi, sigma, mu = model(minibatch)
 samples = mdn.sample(pi, sigma, mu)
 ```
+
+### Example
+
+Red are training data.
+
+![before](https://github.com/sagelywizard/pytorch-mdn/raw/master/data/before.png)
+
+Blue are samples from a trained MDN.
+
+![after](https://github.com/sagelywizard/pytorch-mdn/raw/master/data/after.png)
