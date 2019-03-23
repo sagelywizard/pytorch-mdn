@@ -55,7 +55,7 @@ class MDN(nn.Module):
         return pi, sigma, mu
 
 
-def gaussian_probability(sigma, mu, data):
+def gaussian_probability(sigma, mu, target):
     """Returns the probability of `data` given MoG parameters `sigma` and `mu`.
     
     Arguments:
