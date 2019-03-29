@@ -71,12 +71,12 @@ def gaussian_probability(sigma, mu, target):
         probabilities (BxG): The probability of each point in the probability
             of the distribution in the corresponding sigma/mu index.
     """
-    data = data.unsqueeze(1).expand_as(sigma)
+    target = target.unsqueeze(1).expand_as(sigma)
     ret = ONEOVERSQRT2PI * torch.exp(-0.5 * ((data - mu) / sigma)**2) / sigma
     return torch.prod(ret, 2)
 
 
-def mdn_loss(pi, sigma, mu, data):
+def mdn_loss(pi, sigma, mu, target):
     """Calculates the error, given the MoG parameters and the target
 
     The loss is the negative log likelihood of the data given the MoG
