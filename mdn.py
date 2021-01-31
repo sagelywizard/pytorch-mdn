@@ -56,7 +56,7 @@ class MDN(nn.Module):
 
 
 def gaussian_probability(sigma, mu, target):
-    """Returns the probability of `data` given MoG parameters `sigma` and `mu`.
+    """Returns the probability of `target` given MoG parameters `sigma` and `mu`.
     
     Arguments:
         sigma (BxGxO): The standard deviation of the Gaussians. B is the batch
@@ -64,7 +64,7 @@ def gaussian_probability(sigma, mu, target):
             dimensions per Gaussian.
         mu (BxGxO): The means of the Gaussians. B is the batch size, G is the
             number of Gaussians, and O is the number of dimensions per Gaussian.
-        data (BxI): A batch of data. B is the batch size and I is the number of
+        target (BxI): A batch of target. B is the batch size and I is the number of
             input dimensions.
 
     Returns:
@@ -72,7 +72,7 @@ def gaussian_probability(sigma, mu, target):
             of the distribution in the corresponding sigma/mu index.
     """
     target = target.unsqueeze(1).expand_as(sigma)
-    ret = ONEOVERSQRT2PI * torch.exp(-0.5 * ((data - mu) / sigma)**2) / sigma
+    ret = ONEOVERSQRT2PI * torch.exp(-0.5 * ((target - mu) / sigma)**2) / sigma
     return torch.prod(ret, 2)
 
 
