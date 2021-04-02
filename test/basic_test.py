@@ -6,7 +6,7 @@ class BasicMDN(unittest.TestCase):
     def setUp(self):
         self.mdn = mdn.MDN(4, 6, 10)
 
-    def test_output_shape(self):
+    def testOutputShape(self):
         minibatch = torch.randn((2, 4))
         pi, sigma, mu = self.mdn(minibatch)
         self.assertEqual(pi.size(), (2, 10))
