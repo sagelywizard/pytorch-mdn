@@ -91,8 +91,6 @@ def sample(pi, sigma, mu):
     """Draw samples from a MoG.
     """
     categorical = Categorical(pi)
-    pis = list(categorical.sample().data)
+    pis = categorical.sample().view(pi.size(0), 1, 1)
     sample = Variable(sigma.data.new(sigma.size(0), sigma.size(2)).normal_())
-    for i, idx in enumerate(pis):
-        sample[i] = sample[i].mul(sigma[i,idx]).add(mu[i,idx])
-    return sample
+    return sample * sigma.gather(0, pis) + mu.gather(0, pis)
