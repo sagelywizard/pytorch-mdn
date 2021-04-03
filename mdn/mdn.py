@@ -10,7 +10,7 @@ from torch.distributions import Categorical
 import math
 
 
-ONEOVERSQRT2PI = 1.0 / math.sqrt(2*math.pi)
+ONEOVERSQRT2PI = 1.0 / math.sqrt(2 * math.pi)
 
 
 class MDN(nn.Module):
@@ -45,8 +45,8 @@ class MDN(nn.Module):
             nn.Linear(in_features, num_gaussians),
             nn.Softmax(dim=1)
         )
-        self.sigma = nn.Linear(in_features, out_features*num_gaussians)
-        self.mu = nn.Linear(in_features, out_features*num_gaussians)
+        self.sigma = nn.Linear(in_features, out_features * num_gaussians)
+        self.mu = nn.Linear(in_features, out_features * num_gaussians)
 
     def forward(self, minibatch):
         pi = self.pi(minibatch)
