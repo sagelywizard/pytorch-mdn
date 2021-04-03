@@ -2,8 +2,6 @@
 
 ![Build Status](https://www.travis-ci.com/sagelywizard/pytorch-mdn.svg?branch=master)
 
-https://www.travis-ci.com/sagelywizard/pytorch-mdn.svg?branch=master
-
 This repo contains the code for [mixture density networks](http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.120.5685&rep=rep1&type=pdf).
 
 ## Usage:
