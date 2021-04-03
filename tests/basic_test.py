@@ -2,6 +2,7 @@ import unittest
 import torch
 from mdn import mdn
 
+
 class BasicMDN(unittest.TestCase):
     def setUp(self):
         self.mdn = mdn.MDN(4, 6, 10)
