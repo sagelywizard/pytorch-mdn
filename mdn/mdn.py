@@ -92,7 +92,13 @@ def mdn_loss(pi, sigma, mu, target):
 def sample(pi, sigma, mu):
     """Draw samples from a MoG.
     """
-    categorical = Categorical(pi)
-    pis = categorical.sample().view(pi.size(0), 1, 1)
-    sample = Variable(sigma.data.new(sigma.size(0), sigma.size(2)).normal_())
-    return sample * sigma.gather(0, pis) + mu.gather(0, pis)
+    # Choose which gaussian we'll sample from
+    pis = Categorical(pi).sample().view(pi.size(0), 1, 1)
+    # Choose a random sample, one randn for batch X output dims
+    # Do a (output dims)X(batch size) tensor here, so the broadcast works in
+    # the next step, but we have to transpose back.
+    gaussian_noise = torch.randn(
+        (sigma.size(2), sigma.size(0)), requires_grad=False)
+    variance_samples = sigma.gather(1, pis).detach().squeeze()
+    mean_samples = mu.detach().gather(1, pis).squeeze()
+    return (gaussian_noise * variance_samples + mean_samples).transpose(0, 1)
