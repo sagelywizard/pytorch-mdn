@@ -12,6 +12,7 @@ import math
 
 ONEOVERSQRT2PI = 1.0 / math.sqrt(2*math.pi)
 
+
 class MDN(nn.Module):
     """A mixture density network layer
 
@@ -34,6 +35,7 @@ class MDN(nn.Module):
             is the standard deviation of each Gaussian. Mu is the mean of each
             Gaussian.
     """
+
     def __init__(self, in_features, out_features, num_gaussians):
         super(MDN, self).__init__()
         self.in_features = in_features
@@ -57,7 +59,7 @@ class MDN(nn.Module):
 
 def gaussian_probability(sigma, mu, target):
     """Returns the probability of `target` given MoG parameters `sigma` and `mu`.
-    
+
     Arguments:
         sigma (BxGxO): The standard deviation of the Gaussians. B is the batch
             size, G is the number of Gaussians, and O is the number of
