@@ -1,3 +1,6 @@
+"""A script that shows how to use the MDN. It's a simple MDN with a single
+nonlinearity that's trained to output 1D samples given a 2D input.
+"""
 import matplotlib.pyplot as plt
 import sys
 sys.path.append('../mdn')
