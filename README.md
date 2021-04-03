@@ -40,3 +40,5 @@ Red are training data.
 Blue are samples from a trained MDN.
 
 ![after](https://github.com/sagelywizard/pytorch-mdn/raw/master/data/after.png)
+
+For a full example with code, see `example/example.py`
