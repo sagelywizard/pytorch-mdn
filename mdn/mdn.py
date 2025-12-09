@@ -1,16 +1,16 @@
 """A module for a mixture density network layer
 
-For more info on MDNs, see _Mixture Desity Networks_ by Bishop, 1994.
+For more info on MDNs, see _Mixture Density Networks_ by Bishop, 1994.
 """
 import torch
 import torch.nn as nn
-import torch.optim as optim
-from torch.autograd import Variable
 from torch.distributions import Categorical
 import math
 
 
 ONEOVERSQRT2PI = 1.0 / math.sqrt(2 * math.pi)
+LOG2PI = math.log(2 * math.pi)
+MIN_SIGMA = 1e-6
 
 
 class MDN(nn.Module):
@@ -51,6 +51,7 @@ class MDN(nn.Module):
     def forward(self, minibatch):
         pi = self.pi(minibatch)
         sigma = torch.exp(self.sigma(minibatch))
+        sigma = torch.clamp(sigma, min=MIN_SIGMA)
         sigma = sigma.view(-1, self.num_gaussians, self.out_features)
         mu = self.mu(minibatch)
         mu = mu.view(-1, self.num_gaussians, self.out_features)
@@ -78,14 +79,41 @@ def gaussian_probability(sigma, mu, target):
     return torch.prod(ret, 2)
 
 
+def log_gaussian_probability(sigma, mu, target):
+    """Returns the log probability of `target` given MoG parameters `sigma` and `mu`.
+
+    This is a numerically stable version that works in log-space.
+
+    Arguments:
+        sigma (BxGxO): The standard deviation of the Gaussians. B is the batch
+            size, G is the number of Gaussians, and O is the number of
+            dimensions per Gaussian.
+        mu (BxGxO): The means of the Gaussians. B is the batch size, G is the
+            number of Gaussians, and O is the number of dimensions per Gaussian.
+        target (BxI): A batch of target. B is the batch size and I is the number of
+            input dimensions.
+
+    Returns:
+        log_probabilities (BxG): The log probability of each point in the
+            distribution in the corresponding sigma/mu index.
+    """
+    target = target.unsqueeze(1).expand_as(sigma)
+    # Log of Gaussian PDF: -0.5 * log(2*pi) - log(sigma) - 0.5 * ((x - mu) / sigma)^2
+    log_prob = -0.5 * LOG2PI - torch.log(sigma) - 0.5 * ((target - mu) / sigma) ** 2
+    # Sum over output dimensions (product in probability space = sum in log space)
+    return torch.sum(log_prob, dim=2)
+
+
 def mdn_loss(pi, sigma, mu, target):
     """Calculates the error, given the MoG parameters and the target
 
     The loss is the negative log likelihood of the data given the MoG
-    parameters.
+    parameters. Uses logsumexp for numerical stability.
     """
-    prob = pi * gaussian_probability(sigma, mu, target)
-    nll = -torch.log(torch.sum(prob, dim=1))
+    log_pi = torch.log(pi + 1e-10)
+    log_prob = log_gaussian_probability(sigma, mu, target)
+    # log(sum(pi * prob)) = logsumexp(log(pi) + log(prob))
+    nll = -torch.logsumexp(log_pi + log_prob, dim=1)
     return torch.mean(nll)
 
 
@@ -98,7 +126,8 @@ def sample(pi, sigma, mu):
     # Do a (output dims)X(batch size) tensor here, so the broadcast works in
     # the next step, but we have to transpose back.
     gaussian_noise = torch.randn(
-        (sigma.size(2), sigma.size(0)), requires_grad=False)
+        (sigma.size(2), sigma.size(0)), requires_grad=False,
+        device=sigma.device, dtype=sigma.dtype)
     variance_samples = sigma.gather(1, pis).detach().squeeze()
     mean_samples = mu.detach().gather(1, pis).squeeze()
     return (gaussian_noise * variance_samples + mean_samples).transpose(0, 1)
